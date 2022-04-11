@@ -405,6 +405,8 @@ public class Launcher extends StatefulActivity<LauncherState>
     private StringCache mStringCache;
     private BaseSearchConfig mBaseSearchConfig;
 
+    private boolean mPendingRestart;
+
     @Override
     @TargetApi(Build.VERSION_CODES.S)
     protected void onCreate(Bundle savedInstanceState) {
@@ -629,12 +631,15 @@ public class Launcher extends StatefulActivity<LauncherState>
     }
 
     @Override
-    public void onIdpChanged(boolean modelPropertiesChanged) {
-        onHandleConfigurationChanged();
+    public void onIdpChanged(boolean modelPropertiesChanged, boolean taskbarChanged) {
+        onHandleConfigurationChanged(taskbarChanged);
     }
 
     @Override
-    protected void onHandleConfigurationChanged() {
+    protected void onHandleConfigurationChanged(boolean taskbarChanged) {
+        if (taskbarChanged) {
+            mPendingRestart = true;
+        }
         if (!initDeviceProfile(mDeviceProfile.inv)) {
             return;
         }
@@ -1185,6 +1190,10 @@ public class Launcher extends StatefulActivity<LauncherState>
 
         DragView.removeAllViews(this);
         TraceHelper.INSTANCE.endSection(traceToken);
+
+        if (mPendingRestart) {
+            System.exit(0);
+        }
     }
 
     @Override
