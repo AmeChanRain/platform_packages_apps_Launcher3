@@ -325,7 +325,7 @@ public class DeviceProfile {
             }
         }
 
-        boolean allowPhone = Utilities.getPrefs(context).getBoolean(KEY_PHONE_TASKBAR, false);
+        boolean allowPhone = Utilities.getPrefs(context).getBoolean(KEY_PHONE_TASKBAR, true);
         isTaskbarPresent = (isTablet || allowPhone) && ApiWrapper.TASKBAR_DRAWN_IN_PROCESS;
         if (isTaskbarPresent) {
             if (DisplayController.isTransientTaskbar(context)) {
