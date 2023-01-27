@@ -92,6 +92,7 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
     public @interface SplitButtonDisabledFlags { }
     public static final int FLAG_SINGLE_TASK = 1 << 0;
 
+    private Context mContext;
     private MultiValueAlpha mMultiValueAlpha;
     private Button mSplitButton;
     private ShakeUtils mShakeUtils;
@@ -117,17 +118,15 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
 
     public OverviewActionsView(Context context) {
         this(context, null);
-	mShakeUtils = new ShakeUtils(context);
     }
 
     public OverviewActionsView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
-	mShakeUtils = new ShakeUtils(context);
     }
 
     public OverviewActionsView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr, 0);
-	mShakeUtils = new ShakeUtils(context);
+        mContext = context;
     }
 
     private void bindShake() {
@@ -140,12 +139,12 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
 
     @Override
     public void onVisibilityAggregated(boolean isVisible) {
-	if (isVisible) {
-	    bindShake();
-	} else {
-	    unBindShake();
-	}
-	super.onVisibilityAggregated(isVisible);
+        super.onVisibilityAggregated(isVisible);
+        if (isVisible) {
+	        bindShake();
+	    } else {
+	        unBindShake();
+	    }
     }
 
     @Override
@@ -153,6 +152,7 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
         super.onFinishInflate();
         mMultiValueAlpha = new MultiValueAlpha(findViewById(R.id.action_buttons), NUM_ALPHAS);
         mMultiValueAlpha.setUpdateVisibility(true);
+        mShakeUtils = new ShakeUtils(mContext);
 
         findViewById(R.id.action_screenshot).setOnClickListener(this);
         mSplitButton = findViewById(R.id.action_split);
@@ -161,10 +161,10 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
 
     @Override
     public void onShake(double speed) {
-	if (mCallbacks != null) {
-	    mCallbacks.onClearAllTasksRequested();
-	    setCallbacks(null); // Clear the listener after shake
-	}
+	    if (mCallbacks != null && findViewById(R.id.action_screenshot).getVisibility() == VISIBLE) {
+	        mCallbacks.onClearAllTasksRequested();
+	        setCallbacks(null); // Clear the listener after shake
+	    }
     }
 
     /**
